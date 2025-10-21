@@ -1,9 +1,6 @@
 package br.com.pdv.api.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +11,7 @@ import lombok.Setter;
 public class Cliente {
     @Id
     @Column(name = "id_cliente", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "nome", nullable = false, length = Integer.MAX_VALUE)
@@ -25,7 +23,7 @@ public class Cliente {
     @Column(name = "telefone", nullable = false, length = Integer.MAX_VALUE)
     private String telefone;
 
-    @Column(name = "email", nullable = false, length = Integer.MAX_VALUE)
+    @Column(name = "email", nullable = false, length = Integer.MAX_VALUE, unique = true)
     private String email;
 
 }
