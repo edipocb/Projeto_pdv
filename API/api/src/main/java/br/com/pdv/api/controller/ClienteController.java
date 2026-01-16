@@ -1,5 +1,9 @@
 package br.com.pdv.api.controller;
 
+import br.com.pdv.api.dto.UsuarioDTO.CadastrarClienteDTO;
+import br.com.pdv.api.dto.UsuarioDTO.ClienteResponseDTO;
+import br.com.pdv.api.dto.UsuarioDTO.ListarClientesDTO;
+import br.com.pdv.api.exception.EmailJaCadastradoException;
 import br.com.pdv.api.model.Cliente;
 import br.com.pdv.api.service.ClienteService;
 import org.springdoc.core.service.GenericResponseService;
@@ -21,15 +25,24 @@ public class ClienteController {
         this.responseBuilder = responseBuilder;
     }
     @GetMapping("/listar")
-    public ResponseEntity<List<Cliente>> listarClientes(){
-        List<Cliente> clientes = clienteService.listarTodos();
+    public ResponseEntity<List<ListarClientesDTO>> listarClientes(){
+        List<ListarClientesDTO> clientes = clienteService.listarTodos();
         return ResponseEntity.ok(clientes);
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Cliente> cadastrarCliente(@RequestBody Cliente cliente){
-        clienteService.cadastrarCliente(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
+    public ResponseEntity<ClienteResponseDTO> cadastrarCliente(@RequestBody CadastrarClienteDTO cliente){
+        Cliente clienteSalvo = clienteService.cadastrarCliente(cliente);
+//        clienteService.cadastrarCliente(cliente);
+
+        ClienteResponseDTO response = new ClienteResponseDTO();
+        response.setNome(clienteSalvo.getNome());
+        response.setEmail(clienteSalvo.getEmail());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    @ExceptionHandler(EmailJaCadastradoException.class)
+    public ResponseEntity<String> handleEmailJaCadastrado(EmailJaCadastradoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     @DeleteMapping("/deletar{id}")
@@ -50,5 +63,14 @@ public class ClienteController {
         }
         return ResponseEntity.ok(cliente);
 }
+
+//    @GetMapping("/buscarPorEmail{email}")
+//    public ResponseEntity<?> buscarPorEmail(@PathVariable String email){
+//        Cliente cliente = clienteService.buscarPorEmail(email);
+//        if (cliente == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente " + email + " não encontrado!");
+//        }
+//        return ResponseEntity.ok(cliente);
+//    }
 
 }
